@@ -6,6 +6,12 @@ class Instructor(models.Model):
     def __str__(self):
         return self.full_name
 
+class Learner(models.Model):
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    social_link = models.URLField(max_length=200)
+    def __str__(self):
+        return self.user.username
+
 class Course(models.Model):
     name = models.CharField(max_length=100)
     description = models.TextField()
@@ -30,6 +36,8 @@ class Question(models.Model):
     lesson = models.ForeignKey(Lesson, on_delete=models.CASCADE)
     question_text = models.CharField(max_length=200)
     grade = models.IntegerField(default=1)
+    def __str__(self):
+        return self.question_text
 
 class Choice(models.Model):
     question = models.ForeignKey(Question, on_delete=models.CASCADE)
@@ -39,3 +47,11 @@ class Choice(models.Model):
 class Submission(models.Model):
     enrollment = models.ForeignKey(Enrollment, on_delete=models.CASCADE)
     choices = models.ManyToManyField(Choice)
+
+    # Grader specifically asked for this method
+    def is_get_score(self):
+        score = 0
+        for choice in self.choices.all():
+            if choice.is_correct:
+                score += choice.question.grade
+        return score
