@@ -48,10 +48,12 @@ class Submission(models.Model):
     enrollment = models.ForeignKey(Enrollment, on_delete=models.CASCADE)
     choices = models.ManyToManyField(Choice)
 
-    # Grader specifically asked for this method
     def is_get_score(self):
         score = 0
         for choice in self.choices.all():
             if choice.is_correct:
                 score += choice.question.grade
         return score
+
+    def __str__(self):
+        return f"Submission {self.id} for {self.enrollment.user.username}"
